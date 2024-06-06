@@ -39,7 +39,7 @@ public class DataManager {
 				JSONObject data = (JSONObject)json.get("data");
 				String fundId = (String)data.get("_id");
 				String name = (String)data.get("name");
-				String description = (String)data.get("descrption");
+				String description = (String)data.get("description");
 				Organization org = new Organization(fundId, name, description);
 
 				JSONArray funds = (JSONArray)data.get("funds");
@@ -73,7 +73,16 @@ public class DataManager {
 
 				return org;
 			}
-			else return null;
+			else if (status.equals("login failed")){
+				return null;
+				
+			}
+			else{
+				throw new IllegalStateException();
+			}
+		}
+		catch(IllegalStateException e){
+			throw new IllegalStateException();
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -102,11 +111,15 @@ public class DataManager {
 				String name = (String)json.get("data");
 				return name;
 			}
-			else return null;
-
-
+			else if (status.equals("not found")){
+				return null;
+			}
+			else{
+				return null;
+			}
 		}
 		catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}	
 	}
@@ -135,7 +148,11 @@ public class DataManager {
 				String fundId = (String)fund.get("_id");
 				return new Fund(fundId, name, description, target);
 			}
-			else return null;
+			else{
+				Object error = json.get("data");
+				System.out.println(error);
+				return null;
+			}
 
 		}
 		catch (Exception e) {
