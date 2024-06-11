@@ -1,4 +1,3 @@
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -34,7 +33,6 @@ public class DataManager {
 			JSONObject json = (JSONObject) parser.parse(response);
 			String status = (String)json.get("status");
 
-
 			if (status.equals("success")) {
 				JSONObject data = (JSONObject)json.get("data");
 				String fundId = (String)data.get("_id");
@@ -45,7 +43,7 @@ public class DataManager {
 				JSONArray funds = (JSONArray)data.get("funds");
 				Iterator it = funds.iterator();
 				while(it.hasNext()){
-					JSONObject fund = (JSONObject) it.next(); 
+					JSONObject fund = (JSONObject) it.next();
 					fundId = (String)fund.get("_id");
 					name = (String)fund.get("name");
 					description = (String)fund.get("description");
@@ -68,7 +66,6 @@ public class DataManager {
 					newFund.setDonations(donationList);
 
 					org.addFund(newFund);
-
 				}
 
 				return org;
@@ -92,7 +89,7 @@ public class DataManager {
 
 			Map<String, Object> map = new HashMap<>();
 			map.put("_id", id);
-			String response = client.makeRequest("/findContributrNameById", map);
+			String response = client.makeRequest("/findContributorNameById", map);
 
 			JSONParser parser = new JSONParser();
 			JSONObject json = (JSONObject) parser.parse(response);
@@ -104,11 +101,10 @@ public class DataManager {
 			}
 			else return null;
 
-
 		}
 		catch (Exception e) {
 			return null;
-		}	
+		}
 	}
 
 	/**
@@ -141,8 +137,22 @@ public class DataManager {
 		catch (Exception e) {
 			e.printStackTrace();
 			return null;
-		}	
+		}
 	}
 
+	/**
+	 * Calculate the total donations for a given fund.
+	 * @return the total donation amount
+	 */
+	public double getTotalDonationsForFund(Fund fund) {
+		return fund.getDonations().stream().mapToDouble(Donation::getAmount).sum();
+	}
 
+	/**
+	 * Retrieve the target amount for a given fund.
+	 * @return the target amount
+	 */
+	public long getTargetAmountForFund(Fund fund) {
+		return fund.getTarget();
+	}
 }
