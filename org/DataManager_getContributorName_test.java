@@ -54,7 +54,7 @@ public class DataManager_getContributorName_test {
 			
 			@Override
 			public String makeRequest(String resource, Map<String, Object> queryParams) {
-				return "{\"status\":\"success\",\"randName\":\"test name\"}";
+				return "{\"status\":\"success\":}";
 			}
 			
 		});
