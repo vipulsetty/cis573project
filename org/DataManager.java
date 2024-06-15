@@ -1,3 +1,4 @@
+import java.nio.channels.IllegalSelectorException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -22,15 +23,28 @@ public class DataManager {
 	 * @return an Organization object if successful; null if unsuccessful
 	 */
 	public Organization attemptLogin(String login, String password) {
-
+		if (this.client==null){
+			throw new IllegalStateException("Web Client is null");
+		}
+		if(login==null||password==null){
+			throw new IllegalArgumentException("login or password is null");
+		}
 		try {
 			Map<String, Object> map = new HashMap<>();
 			map.put("login", login);
 			map.put("password", password);
 			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
+			if (response==null){
+				throw new IllegalStateException("Cannot connect to server or server response is null for login");
+			}
 
 			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
+			JSONObject json=null;
+			try {
+				json = (JSONObject) parser.parse(response);
+			} catch (Exception e) {
+				throw new IllegalStateException("JSON Response for login is not in correct format");
+			}
 			String status = (String)json.get("status");
 
 			if (status.equals("success")) {
@@ -75,11 +89,11 @@ public class DataManager {
 				
 			}
 			else{
-				throw new IllegalStateException();
+				throw new IllegalStateException("Error in communicating with server during login");
 			}
 		}
 		catch(IllegalStateException e){
-			throw new IllegalStateException();
+			throw new IllegalStateException(e.getMessage());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -93,15 +107,28 @@ public class DataManager {
 	 * @return the name of the contributor on success; null if no contributor is found
 	 */
 	public String getContributorName(String id) {
-
+		if (this.client==null){
+			throw new IllegalStateException("Web Client is null");
+		}
+		if(id==null){
+			throw new IllegalArgumentException("id is null");
+		}
 		try {
 
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", id);
 			String response = client.makeRequest("/findContributorNameById", map);
+			if (response==null){
+				throw new IllegalStateException("Cannot connect to server or server response is null for contributor name");
+			}
 
 			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
+			JSONObject json=null;
+			try {
+				json = (JSONObject) parser.parse(response);
+			} catch (Exception e) {
+				throw new IllegalStateException("JSON Response for contributor name not in correct format");
+			}
 			String status = (String)json.get("status");
 
 			if (status.equals("success")) {
@@ -112,8 +139,11 @@ public class DataManager {
 				return null;
 			}
 			else{
-				return null;
+				throw new IllegalStateException("Error in communicating with server when getting contributor name");
 			}
+		}
+		catch(IllegalStateException e){
+			throw new IllegalStateException(e.getMessage());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -126,7 +156,12 @@ public class DataManager {
 	 * @return a new Fund object if successful; null if unsuccessful
 	 */
 	public Fund createFund(String orgId, String name, String description, long target) {
-
+		if (this.client==null){
+			throw new IllegalStateException("Web Client is null");
+		}
+		if(orgId==null||name==null||description==null){
+			throw new IllegalArgumentException("orgId or name or description is null");
+		}
 		try {
 
 			Map<String, Object> map = new HashMap<>();
@@ -135,9 +170,17 @@ public class DataManager {
 			map.put("description", description);
 			map.put("target", target);
 			String response = client.makeRequest("/createFund", map);
+			if (response==null){
+				throw new IllegalStateException("Cannot connect to server or server response is null");
+			}
 
 			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
+			JSONObject json=null;
+			try {
+				json = (JSONObject) parser.parse(response);
+			} catch (Exception e) {
+				throw new IllegalStateException("JSON Response not in correct format");
+			}
 			String status = (String)json.get("status");
 
 			if (status.equals("success")) {
@@ -145,12 +188,12 @@ public class DataManager {
 				String fundId = (String)fund.get("_id");
 				return new Fund(fundId, name, description, target);
 			}
-			else{
-				Object error = json.get("data");
-				System.out.println(error);
-				return null;
+			else {
+				throw new IllegalStateException("Error in communicating with server when creating fund");
 			}
-
+		}
+		catch(IllegalStateException e){
+			throw new IllegalStateException(e.getMessage());
 		}
 		catch (Exception e) {
 			e.printStackTrace();

@@ -35,7 +35,7 @@ public class DataManager_getContributorName_test {
 
 	}
 
-    @Test
+    @Test(expected=IllegalStateException.class)
 	public void testServerError(){
 		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
 			
@@ -45,11 +45,10 @@ public class DataManager_getContributorName_test {
 			}
 		});
         String name = dm.getContributorName("12345");
-        assertNull(name);
 	}
 
-    @Test
-	public void testException(){
+    @Test(expected=IllegalStateException.class)
+	public void testJsonException(){
 		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
 			
 			@Override
@@ -59,7 +58,6 @@ public class DataManager_getContributorName_test {
 			
 		});
         String name = dm.getContributorName("12345");
-        assertNull(name);
 	}
 
 }
