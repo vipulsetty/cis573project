@@ -96,8 +96,7 @@ public class DataManager {
 			throw new IllegalStateException(e.getMessage());
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw new IllegalStateException("Unknown error when logging in: "+e.getMessage());
 		}
 	}
 
@@ -114,7 +113,6 @@ public class DataManager {
 			throw new IllegalArgumentException("id is null");
 		}
 		try {
-
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", id);
 			String response = client.makeRequest("/findContributorNameById", map);
@@ -132,6 +130,7 @@ public class DataManager {
 			String status = (String)json.get("status");
 
 			if (status.equals("success")) {
+				System.out.println(json);
 				String name = (String)json.get("data");
 				return name;
 			}
@@ -146,8 +145,7 @@ public class DataManager {
 			throw new IllegalStateException(e.getMessage());
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw new IllegalStateException("Unknown error when getting contributor name: "+e.getMessage());
 		}
 	}
 
@@ -196,8 +194,7 @@ public class DataManager {
 			throw new IllegalStateException(e.getMessage());
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw new IllegalStateException("Unknown error when creating fund: "+e.getMessage());
 		}
 	}
 

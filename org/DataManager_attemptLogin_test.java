@@ -67,6 +67,9 @@ public class DataManager_attemptLogin_test {
 			
 			@Override
 			public String makeRequest(String resource, Map<String, Object> queryParams) {
+				if(queryParams.keySet().contains("id")){
+					return "{\"status\":\"success\",\"data\":\"test\"}";
+				}
 				return "{\"status\":\"success\",\"data\":{\"_id\":\"12345\",\"name\":\"new org\",\"description\":\"this is the new org\",\"funds\":[{\"_id\":\"12345\",\"name\":\"new fund\",\"description\":\"this is new fund \",\"target\":10000,\"donations\":[{\"_id\":\"12345\",\"contributor\":\"test\",\"amount\":100,\"date\":\"2024-05-01\"}]}]}}";
 			}
 			
@@ -82,7 +85,7 @@ public class DataManager_attemptLogin_test {
 		assertEquals(1,o.getFunds().get(0).getDonations().size());
 	}
 
-	@Test
+	@Test(expected=IllegalStateException.class)
 	public void testException(){
 		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
 			
@@ -95,6 +98,5 @@ public class DataManager_attemptLogin_test {
 		
 		Organization o = dm.attemptLogin("test","test");
 
-		assertNull(o);
 	}
 }
