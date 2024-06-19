@@ -38,7 +38,7 @@ public class DataManager_createFund_Test {
 		
 	}
 
-	@Test
+	@Test(expected=IllegalStateException.class)
 	public void testUnsuccessfulCreation() {
 
 		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
@@ -50,14 +50,10 @@ public class DataManager_createFund_Test {
 			}
 			
 		});
-		
 		Fund f = dm.createFund("12345", "new fund", "this is the new fund", 10000);
-		
-		assertNull(f);
-		
 	}
 
-	@Test
+	@Test(expected=IllegalStateException.class)
 	public void testException(){
 		DataManager dm = new DataManager(new WebClient("localhost", 3001) {
 			
@@ -70,7 +66,6 @@ public class DataManager_createFund_Test {
 		});
 		
 		Fund f = dm.createFund("12345", "new fund", "this is the new fund", 10000);
-		assertNull(f);
 	}
 
 }

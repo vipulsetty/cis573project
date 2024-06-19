@@ -15,7 +15,7 @@ public class UserInterface {
 	}
 
 	public void start() {
-
+		mainloop:
 		while (true) {
 			System.out.println("\n\n");
 			if (org.getFunds().size() > 0) {
@@ -28,19 +28,80 @@ public class UserInterface {
 				}
 				System.out.println("Enter the fund number to see more information.");
 			}
-			System.out.println("Enter 0 to create a new fund");
-			System.out.println("Enter -1 to list all contributions");
+      
+			System.out.println("Enter 0 to create a new fund, 'logout' to log back in as the same or different org,or 'q' to quit.");
+      System.out.println("Enter -1 to list all contributions");
 
-			int option = in.nextInt();
-			in.nextLine();
-			if (option == 0) {
-				createFund();
-			} else if (option == -1) {
-				listAllContributions();
-			} else {
-				displayFund(option);
+			while(true){
+				String userString = in.nextLine();
+				if (userString.equals("q") || userString.equals("quit")){
+					break mainloop;
+				}
+				if (userString.equals("logout")){
+					break;
+				}
+				try{
+					int option = Integer.parseInt(userString);
+					if (option == 0) {
+						while(true){
+							try {
+								createFund();
+								continue mainloop;
+							} 
+							catch (Exception e) {
+								System.out.println(e.getMessage());
+								System.out.println("Type 'yes' to retry the operation, all other responses will cause the operation to end:");
+								String response = in.nextLine();
+									if(!response.equals("yes")){
+										continue mainloop;
+									}
+								continue;
+							}
+						}
+					}
+          else if (option == -1) {
+				      listAllContributions();
+          }
+					else if (option>0 && option <= org.getFunds().size()){
+						displayFund(option);
+						continue mainloop;
+	
+					}
+					else {
+						System.out.println("Please enter a number of a fund, 0 to create a fund, 'logout' to log back in as the same or different org,or 'q' to quit.");
+					}
+				}
+				catch (NumberFormatException e){
+					System.out.println("Please enter a number, 'logout' to logout, or 'q' to quit. ");
+				}
 			}
-		}
+			while(true){
+				System.out.println("Please log in to an org.");
+				System.out.println("Please enter a login:");
+				String login = in.nextLine();
+				System.out.println("Please enter a password:");
+				String password = in.nextLine();
+				try{
+					org = dataManager.attemptLogin(login, password);
+					if (org == null) {
+						System.out.println("Login failed.");
+						continue;
+					}
+					else{
+						break;
+					}
+				}
+				catch(Exception e){
+					System.out.println(e.getMessage());
+					System.out.println("Type 'yes' to retry the operation, all other responses will cause the operation to end and program to terminate:");
+					String response = in.nextLine();
+					if(!response.equals("yes")){
+						break mainloop;
+					}
+					continue;
+				}
+			}
+		}			
 	}
 
 	public void createFund() {
@@ -112,14 +173,39 @@ public class UserInterface {
 
 		String login = args[0];
 		String password = args[1];
+    
+		Organization org=null;
+		Scanner input = new Scanner(System.in);
 
-		Organization org = ds.attemptLogin(login, password);
-
-		if (org == null) {
-			System.out.println("Login failed.");
-		} else {
-			UserInterface ui = new UserInterface(ds, org);
-			ui.start();
+		while(true){
+			try{
+				org = ds.attemptLogin(login, password);
+				if (org == null) {
+					System.out.println("Login failed.");
+					System.out.println("Please enter a login:");
+					login = input.nextLine();
+					System.out.println("Please enter a password:");
+					password = input.nextLine();
+				}
+				else{
+					break;
+				}
+			}
+			catch(Exception e){
+				System.out.println(e.getMessage());
+				System.out.println("Type 'yes' to retry the operation, all other responses will cause the operation to end:");
+				String response = input.nextLine();
+				if(!response.equals("yes")){
+					System.exit(0);
+				}
+				System.out.println("Please enter a login:");
+				login = input.nextLine();
+				System.out.println("Please enter a password:");
+				password = input.nextLine();
+			}
 		}
+		UserInterface ui = new UserInterface(ds, org);
+		ui.start();
+		System.out.println("Good-bye!");
 	}
 }
