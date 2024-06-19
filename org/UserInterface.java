@@ -28,7 +28,9 @@ public class UserInterface {
 				}
 				System.out.println("Enter the fund number to see more information.");
 			}
+      
 			System.out.println("Enter 0 to create a new fund, 'logout' to log back in as the same or different org,or 'q' to quit.");
+      System.out.println("Enter -1 to list all contributions");
 
 			while(true){
 				String userString = in.nextLine();
@@ -57,6 +59,9 @@ public class UserInterface {
 							}
 						}
 					}
+          else if (option == -1) {
+				      listAllContributions();
+          }
 					else if (option>0 && option <= org.getFunds().size()){
 						displayFund(option);
 						continue mainloop;
@@ -97,7 +102,6 @@ public class UserInterface {
 				}
 			}
 		}			
-			
 	}
 
 	public void createFund() {
@@ -180,6 +184,16 @@ public class UserInterface {
 		in.nextLine();
 	}
 
+	public void listAllContributions() {
+		List<Donation> allDonations = dataManager.getAllContributions(org);
+		System.out.println("\n\nAll Contributions:");
+		for (Donation donation : allDonations) {
+			System.out.println("Fund: " + donation.getFundId() + ", Amount: $" + donation.getAmount() + ", Date: " + formatDate(donation.getDate()));
+		}
+		System.out.println("Press the Enter key to go back to the main menu");
+		in.nextLine();
+	}
+
 	private String formatDate(String dateString) {
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -192,16 +206,12 @@ public class UserInterface {
 		}
 	}
 
-	
-	
-	/**
-	 * @param args
-	 */
 	public static void main(String[] args) {
 		DataManager ds = new DataManager(new WebClient("localhost", 3001));
 
 		String login = args[0];
 		String password = args[1];
+    
 		Organization org=null;
 		Scanner input = new Scanner(System.in);
 
