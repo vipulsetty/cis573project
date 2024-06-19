@@ -106,14 +106,52 @@ public class UserInterface {
 
 	public void createFund() {
 		System.out.print("Enter the fund name: ");
-		String name = in.nextLine().trim();
-
+		String name;
+		while (true){
+			name = in.nextLine().trim();
+			if (name.equals("")){
+				System.out.println("The fund name can't be blank. Please enter the fund name. ");
+			}
+			else{
+				break;
+			}
+		}
+		
 		System.out.print("Enter the fund description: ");
-		String description = in.nextLine().trim();
+		String description;
+		while (true){
+			description = in.nextLine().trim();
+			if (description.equals("")){
+				System.out.println("The description can't be blank. Please enter the description. ");
+			}
+			else{
+				break;
+			}
+		}
 
 		System.out.print("Enter the fund target: ");
-		long target = in.nextInt();
-		in.nextLine();
+		long target;
+		while(true){
+			String userString = in.nextLine();
+			try{
+				target = Integer.parseInt(userString);
+				if (target < 0){
+					System.out.println("The target must be positive.");
+				}
+				else {
+					break;
+				}
+
+			}
+			catch (NumberFormatException e){
+				System.out.println("Please enter an integer.");
+			} 			
+
+		}
+
+
+		// long target = in.nextInt();
+		// in.nextLine();
 
 		Fund fund = dataManager.createFund(org.getId(), name, description, target);
 		org.getFunds().add(fund);
