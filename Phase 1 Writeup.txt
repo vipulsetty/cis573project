@@ -1,0 +1,58 @@
+1.1
+For the method createFund(), 3 tests were created for branch coverage. The first test was for a successful fund creation, the second test was for unsuccessful fund creation when the status was an error, and the last test was for a broken json input resulting in no fund creation. No significant changes were made to the method, the main modification was to print the error if the status from the request output was an error.
+For the method attemptLogin(), 5 tests were created for branch coverage. The first test was for a successful login attempt, the second test was for a failed login attempt, and the third case was for a login attempt with an error from the request. The fourth test case was for a successful login to an organization with funds along with contributors and the fifth test case was for a login attempt causing exceptions other than an IllegalStateException.
+For the method getContributorName(), 4 tests were created for branch coverage. The first test was for a successful retrieval of the name, the second test was for a request where the name is not found, the third test was for a request leading to an error output, and the last test was for when the method resulted in an exception.
+ 
+1.2
+No significant changes were made to the method createFund() after running tests, the main modification was to print the error if the status from the request output was an error. No bugs were found in the method so no further modifications were made.
+After testing the method attemptLogin(), the main modification was to separately handle login attempts with an error from the request, further details for this exception handling are listed in section 1. Testing did reveal a bug in the original code which was fixed. The method attempted to retrieve the key “descrption” from the request output JSON, so the line was modified to retrieve the key “description”.
+After testing the method getContributorName(), the main modification was to separate the handling of a request output that resulted in the status of “not found” and that status of “error”. An additional bug was found in the method. The method had a typo as it made a request using "findContributrNameById", which was missing an o in contributor. This type was resolved.
+
+
+1.3 
+The fund menu used to crash on bad inputs such as negative integers or non-integers and did not accept quit commands.
+Modified the start() method in the UserInterface class. 
+Kept the input as a string instead of getting the next integer.
+Added a while loop waiting for valid inputs, prompting the user in case of a bad input depending on how it was bad (not an integer vs an integer that is out of range).
+Added a check for “q” and “quit” inputs. Now it will exit the program when these are detected.
+Added a try/catch statement to try to parse the input as an integer. 
+Added a check for whether the input is out of range. 
+Now the fund menu allows the user to quit and reprompts the user on bad inputs.
+
+1.4
+In Task 1.4 for the Java application, modifications were made to the UserInterface class, specifically the displayFund(int fundNumber) method, to include the calculation and display of the total amount of donations and the percentage of the target achieved for a given fund. 
+This involved adding logic to sum donations and compute the percentage of the target. Additionally, the formatDate(String dateString) method was used for formatting donation dates. In the DataManager class, two new methods were introduced: getTotalDonationsForFund(Fund fund) to calculate the total donations for a fund, and getTargetAmountForFund(Fund fund) to retrieve the target amount for a fund. 
+New variables introduced include totalDonations, which stores the total amount of donations, and percentageOfTarget, which stores the percentage of the target achieved. The example output of these enhancements is "Total donation amount: $10000" and "Percentage of target achieved: 50.00%". The enhancements were integrated into the existing logic without encountering any bugs, and no known issues remain.
+
+ADDITIONAL TASKS (1.8, 1.9, 1.10)
+
+1.8
+When creating a fund, it used to be that the user input was not validated. 
+Modified the createFund() method within UserInterface.java.
+Added while loops waiting for valid inputs for the fund name, description, and target.
+Checked that the fund name and description are not all whitespace. 
+Checked that the target amount must be an integer and must be nonnegative, giving different messages to the user for non-integers and for negative integers. Allowed a target of 0 because the specifications only say to reject a negative target, but should a target of 0 be allowed?  
+Now the user input is validated during fund creation to ensure that we have non-empty names and descriptions of funds and a non-negative integer target.
+
+1.9
+To create a distinction between a server error and a failed login attempt in the attempLogin() method, an if statement was added. If the status from the request output is “error”, an IllegalStateException is thrown. The original try-catch block in the attempLogin() method was modified to specifically throw an IllegalStateException when thrown. As in the original behaviour, if the request output is “login failed” the method returns a null org.
+Within the UserInterface class, the main method was modified to handle the new possible outputs from DataManager.attemptLogin(). A try-catch block was added in which the catch block only caught IllegalStateExceptions. If this exception is caught, the message “error in communicating with server” is displayed. Now, the overall app has the ability to differentiate between a failed login attempt and a server error.
+
+1.10
+In Task 1.10 for the Organization App, date formatting was implemented to ensure that donation dates are displayed in the format "Month Day, Year" (e.g., "June 18, 2021"). 
+This change was applied to the UserInterface class, specifically in the displayFund(int fundNumber) method, where logic was added to format donation dates using SimpleDateFormat. 
+A new dependency on java.text.SimpleDateFormat was introduced to achieve this formatting. An example output of this enhancement is "John Doe: $100 on June 18, 2021". 
+The date formatting was integrated into the display logic without encountering any bugs, and no known issues remain.
+
+Additional Bugs/Issues Found
+An additional bug was found in the getContributorName method in the DataManager class. When setting up the map to pass into the web request, an unnecessary underscore existed in the key name.
+This underscore was removed so that the method would function propoerly when requesting from the REST API.
+
+Startup Instructions
+No changes were made to the startup procedures of the 3 apps.
+
+Contributions
+Vipul contributed to tasks 1.1, 1.2, and 1.9.
+Matthew contributed to tasks 1.3 and 1.8.
+Om contributed to tasks 1.4 and 1.10.
+Each member contributed to the write-up by explaining the work on the tasks they owned.

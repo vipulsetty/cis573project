@@ -32,7 +32,9 @@ public class UserInterface {
 				}
 				System.out.println("Enter the fund number to see more information.");
 			}
+      
 			System.out.println("Enter 0 to create a new fund, 'logout' to log back in as the same or different org,or 'q' to quit.");
+      System.out.println("Enter -1 to list all contributions");
 
 			while(true){
 				String userString = in.nextLine();
@@ -66,9 +68,12 @@ public class UserInterface {
 						System.out.println("Display donations to fund " + option + " aggregated by contributor?");
 						String response = in.nextLine();
 						displayFund(option,response.toLowerCase().startsWith("y"));
-						continue mainloop;
-	
-					}
+            continue mainloop;
+          }
+          else if (option == -1) {
+				      listAllContributions();
+          }
+  
 					else {
 						System.out.println("Please enter a number of a fund, 0 to create a fund, 'logout' to log back in as the same or different org,or 'q' to quit.");
 					}
@@ -104,7 +109,6 @@ public class UserInterface {
 				}
 			}
 		}			
-			
 	}
 
 	public void createFund() {
@@ -247,6 +251,16 @@ public class UserInterface {
 			System.out.println("Press the Enter key to go back to the listing of funds");
 			in.nextLine();
 		
+	}
+
+	public void listAllContributions() {
+		List<Donation> allDonations = dataManager.getAllContributions(org);
+		System.out.println("\n\nAll Contributions:");
+		for (Donation donation : allDonations) {
+			System.out.println("Fund: " + donation.getFundId() + ", Amount: $" + donation.getAmount() + ", Date: " + formatDate(donation.getDate()));
+		}
+		System.out.println("Press the Enter key to go back to the main menu");
+		in.nextLine();
 	}
 
 	private String formatDate(String dateString) {
