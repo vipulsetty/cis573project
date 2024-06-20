@@ -2,16 +2,20 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.*;
 
 public class UserInterface {
 
 	private DataManager dataManager;
 	private Organization org;
 	private Scanner in = new Scanner(System.in);
-
+	private Map<Integer,Map<String,Integer>> cachedDonationCounts; // If funds are ever renumbered (such as if a fund is deleted), this cache should be invalidated.
+	private Map<Integer,Map<String,Long>> cachedDonationTotals; // If funds are ever renumbered (such as if a fund is deleted), this cache should be invalidated.
 	public UserInterface(DataManager dataManager, Organization org) {
 		this.dataManager = dataManager;
 		this.org = org;
+		this.cachedDonationCounts = new HashMap<>();
+		this.cachedDonationTotals = new HashMap<>();
 	}
 
 	public void start() {
@@ -59,14 +63,17 @@ public class UserInterface {
 							}
 						}
 					}
+					else if (option>0 && option <= org.getFunds().size()){
+						
+						System.out.println("Display donations to fund " + option + " aggregated by contributor?");
+						String response = in.nextLine();
+						displayFund(option,response.toLowerCase().startsWith("y"));
+            continue mainloop;
+          }
           else if (option == -1) {
 				      listAllContributions();
           }
-					else if (option>0 && option <= org.getFunds().size()){
-						displayFund(option);
-						continue mainloop;
-	
-					}
+  
 					else {
 						System.out.println("Please enter a number of a fund, 0 to create a fund, 'logout' to log back in as the same or different org,or 'q' to quit.");
 					}
@@ -157,7 +164,8 @@ public class UserInterface {
 		org.getFunds().add(fund);
 	}
 
-	public void displayFund(int fundNumber) {
+	public void displayFund(int fundNumber,boolean aggregated) {
+		System.out.println("aggregated: "+aggregated);
 		Fund fund = org.getFunds().get(fundNumber - 1);
 
 		System.out.println("\n\n");
@@ -165,23 +173,84 @@ public class UserInterface {
 		System.out.println("Name: " + fund.getName());
 		System.out.println("Description: " + fund.getDescription());
 		System.out.println("Target: $" + fund.getTarget());
-
 		List<Donation> donations = fund.getDonations();
-		System.out.println("Number of donations: " + donations.size());
-		for (Donation donation : donations) {
-			System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + formatDate(donation.getDate()));
+
+		// for testing purposes, make a nonempty list of donations
+		// donations = new ArrayList<>();
+		// donations.add(new Donation("ID","Bert",100,"July 01, 1976"));
+		// donations.add(new Donation("ID","Ernie",150,"07 01 1976"));	
+		// donations.add(new Donation("ID","Bert",100,"07-02-2024"));
+		// end creation of fake donations
+
+
+		if (aggregated){
+
+			// compute aggregation
+			Map<String,Integer> donationCounts = new HashMap<>();
+			Map<String,Long> donationTotals = new HashMap<>();
+
+			// Check if these are in the cache. If not, compute them.
+			if (cachedDonationCounts.containsKey(fundNumber)){
+				donationCounts = cachedDonationCounts.get(fundNumber);
+				donationTotals = cachedDonationTotals.get(fundNumber);
+			}
+			else{
+				for (Donation d: donations){
+					String contributor = d.getContributorName();
+					if (!donationCounts.containsKey(contributor)){
+						donationCounts.put(contributor,1);
+						donationTotals.put(contributor,d.getAmount());
+					}
+					else{
+						donationCounts.put(contributor,donationCounts.get(contributor)+1);
+						donationTotals.put(contributor,donationTotals.get(contributor)+d.getAmount());
+					}
+
+				}
+				cachedDonationCounts.put(fundNumber,donationCounts);
+				cachedDonationTotals.put(fundNumber,donationTotals);
+
+			} // end else 
+			
+			List<String> contributorList = new ArrayList<String>(donationCounts.keySet());
+			// Sort the list
+
+			final Map<String,Long> fDonationTotals = donationTotals;
+			Collections.sort(contributorList, (c1,c2) -> -fDonationTotals.get(c1).compareTo(fDonationTotals.get(c2))); // - to sort in descending order, opposite Long's natural order
+
+
+			System.out.println("Number of donors: " + contributorList.size());
+			//Print out the list
+			for (String contributor:contributorList){
+				String pluralString = "s";
+				if (donationCounts.get(contributor) == 1) pluralString = "";
+
+				System.out.println(contributor + " made " + donationCounts.get(contributor) + " donation" + pluralString +", total $"+donationTotals.get(contributor)+".");
+
+			}
+
+
+
+		}
+		else{
+
+			System.out.println("Number of donations: " + donations.size());
+			for (Donation donation : donations) {
+				System.out.println("* " + donation.getContributorName() + ": $" + donation.getAmount() + " on " + formatDate(donation.getDate()));
+			}
 		}
 
-		// Calculate and display total donations and percentage of target
-		double totalDonations = dataManager.getTotalDonationsForFund(fund);
-		long targetAmount = dataManager.getTargetAmountForFund(fund);
-		double percentageOfTarget = (targetAmount > 0) ? (totalDonations / targetAmount) * 100 : 0;
+			// Calculate and display total donations and percentage of target
+			long totalDonations = (long)dataManager.getTotalDonationsForFund(fund);
+			long targetAmount = dataManager.getTargetAmountForFund(fund);
+			double percentageOfTarget = (targetAmount > 0) ? (totalDonations / targetAmount) * 100 : 0;
 
-		System.out.println("Total donation amount: $" + totalDonations);
-		System.out.println("Percentage of target achieved: " + String.format("%.2f", percentageOfTarget) + "%");
+			System.out.println("Total donation amount: $" + totalDonations);
+			System.out.println("Percentage of target achieved: " + String.format("%.2f", percentageOfTarget) + "%");
 
-		System.out.println("Press the Enter key to go back to the listing of funds");
-		in.nextLine();
+			System.out.println("Press the Enter key to go back to the listing of funds");
+			in.nextLine();
+		
 	}
 
 	public void listAllContributions() {
@@ -206,12 +275,16 @@ public class UserInterface {
 		}
 	}
 
+	
+	
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		DataManager ds = new DataManager(new WebClient("localhost", 3001));
 
 		String login = args[0];
 		String password = args[1];
-    
 		Organization org=null;
 		Scanner input = new Scanner(System.in);
 
