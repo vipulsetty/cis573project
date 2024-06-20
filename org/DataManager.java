@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.security.MessageDigest;
 import java.nio.charset.StandardCharsets;
+import java.util.HexFormat;
+
+
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -24,6 +27,13 @@ public class DataManager {
 		this.contributorCache = new HashMap<>();
 	}
 
+	public static String byteArrayToHex(byte[] a) {
+		StringBuilder sb = new StringBuilder(a.length * 2);
+		for(byte b: a)
+		   sb.append(String.format("%02x", b));
+		return sb.toString();
+	 }
+
 	/**
 	 * Attempt to log the user into an Organization account using the login and password.
 	 * This method uses the /findOrgByLoginAndPassword endpoint in the API.
@@ -38,18 +48,17 @@ public class DataManager {
 		}
 		try {
 			MessageDigest md = MessageDigest.getInstance("SHA-256");
-			hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
+			byte[] temp = password.getBytes(StandardCharsets.UTF_8);
+			String hash = byteArrayToHex(md.digest(temp));
 			Map<String, Object> map = new HashMap<>();
-			map.put("login", hash);
-			map.put("password", password);
+			map.put("login", login);
+			map.put("password", hash);
 			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
 			if (response==null){
 				throw new IllegalStateException("Cannot connect to server or server response is null for login");
 			}
 
 			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
-			String status = (String) json.get("status");
 			JSONObject json=null;
 			try {
 				json = (JSONObject) parser.parse(response);

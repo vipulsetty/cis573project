@@ -1,0 +1,41 @@
+2.1
+
+For task 2.1, we focused on optimizing the Organization App's performance by implementing caching for contributor names. In the DataManager class, we introduced a HashMap called contributorCache to store previously retrieved contributor names. Modifications were made to the getContributorName method to first check this cache before making API calls to retrieve contributor names. This enhancement aimed to reduce unnecessary requests to the RESTful API, thereby improving app efficiency. However, we noted that our current implementation lacks cache expiration or replacement strategies, which might be addressed in future iterations to ensure optimal cache management. No changes were necessary to the application's startup process. 
+ 
+2.2
+Based on the requirements in the unit tests found in DataManagerRobustnessTest.java, modifications were made to the methods in DataManager so that they threw the required exceptions. Since the requirements across all 3 methods - attempLogin, getContributorName, and createFund - were similar the changes made were similar. For instance, any null arguments throw IllegalArgumentExceptions. All other issues were set up to throw IllegalStateExceptions.
+Due to the new behavior of these functions, some slight changes were made to the original unit tests set up in phase 1, specifically unit tests around exception handling.
+Finally, we had to make changes in various methods in the UserInterface class to handle the errors the methods were now throwing. In the case of any exception, a helpful error message is presented to the user along with a prompt asking if they would like to retry the operation that failed.
+
+
+2.3 
+The user now has the option of seeing the donations to a particular fund aggregated by donor. The start() method of the UserInterface class was modified to ask the user whether they want the donations aggregated after the user requests information about a particular fund. This is now a parameter of the UserInterface.displayFund() method. The displayFund() method was modified to include the option of aggregation by donor. If the information is not found in the cache, it is computed by using two Maps from the donor names to the count of donations and from the donor names to the total amount donated, then the distinct donors are extracted and sorted by total donation amounts. This information is stored in the cache and displayed to the user.
+
+ADDITIONAL TASKS 2.8, 2.9, 2.10
+
+2.8
+The option for the user to log out and log back in to different orgs was provided from the same prompt where the user can add or view different funds. These changes were made to the UserInterface.start() method.
+If the user typed logout, they would enter into a new loop that would prompt them to login and handle any errors that came with new login attempts. If the new login fails, the user has the option to retry or quit the operation which will end the program.
+
+2.9
+In task 2.9, our goal was to enhance the Organization App by allowing users to view all contributions made across the organization's funds, sorted by donation date in descending order. Changes primarily focused on the UserInterface class, where a new method displayAllContributions was added. This method iterates through all funds in the organization and lists contributions along with their respective fund names, donation amounts, and dates, sorted as per the requirement. This feature provides users with a comprehensive view of all donations across funds, facilitating better transparency and management of contributions within the app. No startup modifications were necessary for this task. 
+
+
+
+2.10 
+Passwords are now sent in an encrypted form when logging in. In UserInterface.java, the UserInterface.main() method was changed to send a hash of the password instead of the raw password. The server code needed to be changed to reflect this. No change was needed for /findOrgByLoginAndPassword although now it finds the organization by login and hashed password rather than the raw password. However, we needed to change /createOrg and /updateOrg in admin.js to apply the same hash function to the new password before it is stored in the database.
+
+One issue with this change is that you might not be able to log in to a previously created account because the old passwords in the database are not replaced with their hashes. Another is that there are still many security issues such as that the passwords are sent unencrypted when the organization is created or modified and there is no salt added so an eavesdropper could log in by reusing a password hash.
+We referenced this stack overflow link to handle converting bytes to string within the org app.
+https://stackoverflow.com/questions/9655181/java-convert-a-byte-array-to-a-hex-string/13006907#13006907
+
+Additional Bugs/Issues Found
+
+Startup Instructions
+No changes were made to the startup procedures of the 3 apps.
+
+Contributions
+Vipul contributed to tasks 2.2 and 2.8.
+Matthew contributed to tasks 2.3 and 2.10.
+Om contributed to tasks 2.1 and 2.9.
+Each member contributed to the write-up by explaining the work on the tasks they owned.

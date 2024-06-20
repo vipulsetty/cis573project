@@ -1,7 +1,4 @@
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
 import java.util.*;
 
 public class UserInterface {
@@ -65,17 +62,17 @@ public class UserInterface {
 					}
 					else if (option>0 && option <= org.getFunds().size()){
 						
-						System.out.println("Display donations to fund " + option + " aggregated by contributor?");
+						System.out.println("Type 'y' to display donations to fund " + option + " aggregated by contributor. All other input will be un-aggregated.");
 						String response = in.nextLine();
 						displayFund(option,response.toLowerCase().startsWith("y"));
-            continue mainloop;
-          }
-          else if (option == -1) {
-				      listAllContributions();
-          }
-  
+            			continue mainloop;
+          			}
+          			else if (option == -1) {
+				    	listAllContributions();
+						continue mainloop;
+          			}
 					else {
-						System.out.println("Please enter a number of a fund, 0 to create a fund, 'logout' to log back in as the same or different org,or 'q' to quit.");
+						System.out.println("Please enter a number of a fund, 0 to create a fund, -1 to view all contributions, 'logout' to log back in as the same or different org,or 'q' to quit.");
 					}
 				}
 				catch (NumberFormatException e){
@@ -241,15 +238,12 @@ public class UserInterface {
 		}
 
 			// Calculate and display total donations and percentage of target
-			long totalDonations = (long)dataManager.getTotalDonationsForFund(fund);
-			long targetAmount = dataManager.getTargetAmountForFund(fund);
-			double percentageOfTarget = (targetAmount > 0) ? (totalDonations / targetAmount) * 100 : 0;
+			double totalDonations = (double)dataManager.getTotalDonationsForFund(fund);
+			double targetAmount = (double)dataManager.getTargetAmountForFund(fund);
+			double percentageOfTarget = totalDonations/targetAmount * 100;
 
 			System.out.println("Total donation amount: $" + totalDonations);
 			System.out.println("Percentage of target achieved: " + String.format("%.2f", percentageOfTarget) + "%");
-
-			System.out.println("Press the Enter key to go back to the listing of funds");
-			in.nextLine();
 		
 	}
 
@@ -257,10 +251,8 @@ public class UserInterface {
 		List<Donation> allDonations = dataManager.getAllContributions(org);
 		System.out.println("\n\nAll Contributions:");
 		for (Donation donation : allDonations) {
-			System.out.println("Fund: " + donation.getFundId() + ", Amount: $" + donation.getAmount() + ", Date: " + formatDate(donation.getDate()));
+			System.out.println("Fund: " + donation.getFundId() +", Contributor: "+donation.getContributorName()+ ", Amount: $" + donation.getAmount() + ", Date: " + formatDate(donation.getDate()));
 		}
-		System.out.println("Press the Enter key to go back to the main menu");
-		in.nextLine();
 	}
 
 	private String formatDate(String dateString) {
