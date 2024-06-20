@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.security.MessageDigest;
+import java.nio.charset.StandardCharsets;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -35,8 +37,10 @@ public class DataManager {
 			throw new IllegalArgumentException("login or password is null");
 		}
 		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
 			Map<String, Object> map = new HashMap<>();
-			map.put("login", login);
+			map.put("login", hash);
 			map.put("password", password);
 			String response = client.makeRequest("/findOrgByLoginAndPassword", map);
 			if (response==null){
