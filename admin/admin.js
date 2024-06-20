@@ -43,9 +43,15 @@ Handle the form submission to create a new organization
 */
 app.use('/createOrg', (req, res) => {
 
+	const crypto = require('crypto');
+
+	function hashPassword(password) {
+		return crypto.createHash('sha256').update(password).digest('hex');
+	}
+	
 	var org = new Organization({
 		login: req.body.login,
-		password: req.body.password,
+		password: hashPassword(req.body.password),
 		name: req.body.name,
 		description: req.body.description,
 		funds: []
@@ -109,7 +115,7 @@ app.use('/updateOrg', (req, res) => {
 
 	var filter = {"_id" : req.body.id };
 
-	var update = { "login" : req.body.login, "password" : req.body.password, "name" : req.body.name, "description" : req.body.description };
+	var update = { "login" : req.body.login, "password" : hashPassword(req.body.password), "name" : req.body.name, "description" : req.body.description };
 	
 	var action = { "$set" : update };
 
