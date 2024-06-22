@@ -8,6 +8,7 @@ public class UserInterface {
 	private Scanner in = new Scanner(System.in);
 	private Map<Integer,Map<String,Integer>> cachedDonationCounts; // If funds are ever renumbered (such as if a fund is deleted), this cache should be invalidated.
 	private Map<Integer,Map<String,Long>> cachedDonationTotals; // If funds are ever renumbered (such as if a fund is deleted), this cache should be invalidated.
+	
 	public UserInterface(DataManager dataManager, Organization org) {
 		this.dataManager = dataManager;
 		this.org = org;
@@ -19,7 +20,8 @@ public class UserInterface {
 		mainloop:
 		while (true) {
 			System.out.println("\n\n");
-			if (org.getFunds().size() > 0) {
+			int numFunds = org.getFunds().size();
+			if (numFunds > 0) {
 				System.out.println("There are " + org.getFunds().size() + " funds in this organization:");
 
 				int count = 1;
@@ -27,20 +29,19 @@ public class UserInterface {
 					System.out.println(count + ": " + f.getName());
 					count++;
 				}
-				System.out.println("Enter the fund number to see more information.");
 			}
-      
-			System.out.println("Enter 0 to create a new fund, 'logout' to log back in as the same or different org,or 'q' to quit.");
-      System.out.println("Enter -1 to list all contributions");
-
+    
 			while(true){
+				System.out.println("Please pick from one of the options by typing a number response: ");
+      			System.out.println("Enter 0 to create a new fund");
+				System.out.println("Enter the fund number to see more information.");
+				System.out.println("Enter "+Integer.toString(numFunds+1)+" to logout.");
+				System.out.println("Enter "+Integer.toString(numFunds+1)+" to quit.");
+				System.out.println("Enter -1 to list all contributions");
+				System.out.println("Enter -2 to change password");
+				System.out.println("Enter -3 to change password");
+
 				String userString = in.nextLine();
-				if (userString.equals("q") || userString.equals("quit")){
-					break mainloop;
-				}
-				if (userString.equals("logout")){
-					break;
-				}
 				try{
 					int option = Integer.parseInt(userString);
 					if (option == 0) {
@@ -56,7 +57,6 @@ public class UserInterface {
 									if(!response.equals("yes")){
 										continue mainloop;
 									}
-								continue;
 							}
 						}
 					}
@@ -71,12 +71,26 @@ public class UserInterface {
 				    	listAllContributions();
 						continue mainloop;
           			}
+					else if (option == -2) {
+				    	changePassword();
+						continue mainloop;
+          			}
+					else if (option == -3) {
+				    	editAccountInfo();
+						continue mainloop;
+          			}
+					else if (option==numFunds+1) {
+						break;
+					}
+					else if (option==numFunds+2){
+						break mainloop;
+					}
 					else {
-						System.out.println("Please enter a number of a fund, 0 to create a fund, -1 to view all contributions, 'logout' to log back in as the same or different org,or 'q' to quit.");
+						System.out.println("Invalid number option.");
 					}
 				}
 				catch (NumberFormatException e){
-					System.out.println("Please enter a number, 'logout' to logout, or 'q' to quit. ");
+					System.out.println("Please enter a number.");
 				}
 			}
 			while(true){
@@ -89,7 +103,6 @@ public class UserInterface {
 					org = dataManager.attemptLogin(login, password);
 					if (org == null) {
 						System.out.println("Login failed.");
-						continue;
 					}
 					else{
 						break;
@@ -102,10 +115,17 @@ public class UserInterface {
 					if(!response.equals("yes")){
 						break mainloop;
 					}
-					continue;
 				}
 			}
 		}			
+	}
+
+	public void changePassword(){
+
+	}
+
+	public void editAccountInfo(){
+		
 	}
 
 	public void createFund() {

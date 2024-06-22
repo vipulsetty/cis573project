@@ -303,6 +303,29 @@ app.use('/findFundNameById', (req, res) => {
     });
 
 
+/*
+Handle the form submission to update an org
+*/
+app.use('/updateOrg', (req, res) => {
+
+	var filter = {"_id" : req.body.id };
+
+	var update = { "login" : req.body.login, "password" : hashPassword(req.body.password), "name" : req.body.name, "description" : req.body.description };
+	
+	var action = { "$set" : update };
+
+	Organization.findOneAndUpdate( filter, action, { new : true }, (err, result) => {
+		if (err) {
+		    res.render("error", { 'error' : err });
+		}
+		else {
+		    //console.log(result);
+		    res.render("viewOrg", {"org" : result , 'status' : 'Successfully updated Organization'});
+		}
+	    });
+	
+    });
+	
 
 /*
 Return information about all organizations, so that user can choose one to contribute to.
