@@ -304,23 +304,28 @@ app.use('/findFundNameById', (req, res) => {
 
 
 /*
-Handle the form submission to update an org
+update org through api
 */
 app.use('/updateOrg', (req, res) => {
 
-	var filter = {"_id" : req.body.id };
+	const crypto = require('crypto');
 
-	var update = { "login" : req.body.login, "password" : hashPassword(req.body.password), "name" : req.body.name, "description" : req.body.description };
+	function hashPassword(password) {
+		return crypto.createHash('sha256').update(password).digest('hex');
+	}
+
+	var filter = {"_id" : req.query.id };
+
+	var update = { "login" : req.query.login, "password" : hashPassword(req.query.password), "name" : req.query.name, "description" : req.query.description };
 	
 	var action = { "$set" : update };
 
-	Organization.findOneAndUpdate( filter, action, { new : true }, (err, result) => {
+	Organization.findOneAndUpdate( filter, action, { new : false }, (err, result) => {
 		if (err) {
-		    res.render("error", { 'error' : err });
+		    res.json({"status":"error", 'data' : err });
 		}
 		else {
-		    //console.log(result);
-		    res.render("viewOrg", {"org" : result , 'status' : 'Successfully updated Organization'});
+		    res.json({'status': 'success', 'data': result});
 		}
 	    });
 	

@@ -16,7 +16,7 @@ public class UserInterface {
 		this.cachedDonationTotals = new HashMap<>();
 	}
 
-	public void start() {
+	public void start(String password,String login) {
 		mainloop:
 		while (true) {
 			System.out.println("\n\n");
@@ -36,10 +36,10 @@ public class UserInterface {
       			System.out.println("Enter 0 to create a new fund");
 				System.out.println("Enter the fund number to see more information.");
 				System.out.println("Enter "+Integer.toString(numFunds+1)+" to logout.");
-				System.out.println("Enter "+Integer.toString(numFunds+1)+" to quit.");
+				System.out.println("Enter "+Integer.toString(numFunds+2)+" to quit.");
 				System.out.println("Enter -1 to list all contributions");
 				System.out.println("Enter -2 to change password");
-				System.out.println("Enter -3 to change password");
+				System.out.println("Enter -3 to edict account info");
 
 				String userString = in.nextLine();
 				try{
@@ -72,7 +72,7 @@ public class UserInterface {
 						continue mainloop;
           			}
 					else if (option == -2) {
-				    	changePassword();
+				    	changePassword(password,login);
 						continue mainloop;
           			}
 					else if (option == -3) {
@@ -96,9 +96,9 @@ public class UserInterface {
 			while(true){
 				System.out.println("Please log in to an org.");
 				System.out.println("Please enter a login:");
-				String login = in.nextLine();
+				login = in.nextLine();
 				System.out.println("Please enter a password:");
-				String password = in.nextLine();
+				password = in.nextLine();
 				try{
 					org = dataManager.attemptLogin(login, password);
 					if (org == null) {
@@ -120,8 +120,37 @@ public class UserInterface {
 		}			
 	}
 
-	public void changePassword(){
-
+	public void changePassword(String correctPassword,String login){
+		while (true){
+			System.out.println("Please type in your current password, or click enter to exit the operation: ");
+			String inputPassword = in.nextLine();
+			if(inputPassword.equals("")){
+				return;
+			}
+			if(!inputPassword.equals(correctPassword)){
+				System.out.println("Incorrect current password");
+				return;
+			}
+			System.out.println("Please type in your new password, or click enter to exit the operation.");
+			String newPassword1 = in.nextLine();
+			System.out.println("Please re-type in your new password, or click enter to exit the operation.");
+			String newPassword2 = in.nextLine();
+			if(newPassword1.equals("")|| newPassword2.equals("")){
+				return;
+			}
+			if(!newPassword1.equals(newPassword2)){
+				System.out.println("New passwords do not match");
+				return;
+			}
+			boolean update = dataManager.changeOrgPassword(org, newPassword2, login);
+			if(update){
+				System.out.println("Successful update");
+				break;
+			}
+			else{
+				System.out.println("Unsuccessful update");
+			}
+		}
 	}
 
 	public void editAccountInfo(){
@@ -328,7 +357,7 @@ public class UserInterface {
 			}
 		}
 		UserInterface ui = new UserInterface(ds, org);
-		ui.start();
+		ui.start(password,login);
 		System.out.println("Good-bye!");
 	}
 }

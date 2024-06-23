@@ -253,4 +253,38 @@ public class DataManager {
 
 		return allDonations;
 	}
+
+	public Boolean changeOrgPassword(Organization org,String newPassword, String login){
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("id",org.getId());
+			map.put("login", login);
+			map.put("password", newPassword);
+			map.put("name",org.getName());
+			map.put("description",org.getDescription());
+			System.out.println(map);
+			String response = client.makeRequest("/updateOrg", map);
+			if (response==null){
+				throw new IllegalStateException("Cannot connect to server or server response is null");
+			}
+			JSONParser parser = new JSONParser();
+			JSONObject json=null;
+			try {
+				json = (JSONObject) parser.parse(response);
+			} catch (Exception e) {
+				throw new IllegalStateException("JSON Response not in correct format");
+			}
+			String status = (String)json.get("status");
+			if (status.equals("success")) {
+				return true;
+			}
+			else {
+				throw new IllegalStateException("Error in communicating with server when creating fund");
+			}
+		} 
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+			return false;
+		}
+	}
 }
