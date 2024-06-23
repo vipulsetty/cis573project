@@ -76,7 +76,7 @@ public class UserInterface {
 						continue mainloop;
           			}
 					else if (option == -3) {
-				    	editAccountInfo();
+				    	editAccountInfo(password,login);
 						continue mainloop;
           			}
 					else if (option==numFunds+1) {
@@ -153,7 +153,38 @@ public class UserInterface {
 		}
 	}
 
-	public void editAccountInfo(){
+	public void editAccountInfo(String correctPassword,String login){
+		while (true){
+			System.out.println("Please type in your current password, or click enter to exit the operation: ");
+			String inputPassword = in.nextLine();
+			if(inputPassword.equals("")){
+				return;
+			}
+			if(!inputPassword.equals(correctPassword)){
+				System.out.println("Incorrect current password");
+				return;
+			}
+
+			System.out.println("Please type in the new organization name, or click enter to keep the existing one.");
+			String name = in.nextLine();
+			System.out.println("Please type in the new organizationd description, or click enter to keep the existing one.");
+			String description = in.nextLine();
+			if(name.equals("")){
+				name = org.getName();
+			}
+			if(description.equals("")){
+				description=org.getDescription();
+			}
+
+			boolean update = dataManager.updateAccountInfo(name,description,org.getId(), correctPassword, login);
+			if(update){
+				System.out.println("Successful update");
+				break;
+			}
+			else{
+				System.out.println("Unsuccessful update");
+			}
+		}
 		
 	}
 

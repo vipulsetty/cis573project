@@ -279,7 +279,41 @@ public class DataManager {
 				return true;
 			}
 			else {
-				throw new IllegalStateException("Error in communicating with server when creating fund");
+				throw new IllegalStateException("Error in communicating with server when updating org password");
+			}
+		} 
+		catch (Exception e) {
+			System.out.println(e.getMessage());
+			return false;
+		}
+	}
+
+	public Boolean updateAccountInfo(String name,String description, String id,String newPassword, String login){
+		try {
+			Map<String, Object> map = new HashMap<>();
+			map.put("id",id);
+			map.put("login", login);
+			map.put("password", newPassword);
+			map.put("name",name);
+			map.put("description",login);
+			System.out.println(map);
+			String response = client.makeRequest("/updateOrg", map);
+			if (response==null){
+				throw new IllegalStateException("Cannot connect to server or server response is null");
+			}
+			JSONParser parser = new JSONParser();
+			JSONObject json=null;
+			try {
+				json = (JSONObject) parser.parse(response);
+			} catch (Exception e) {
+				throw new IllegalStateException("JSON Response not in correct format");
+			}
+			String status = (String)json.get("status");
+			if (status.equals("success")) {
+				return true;
+			}
+			else {
+				throw new IllegalStateException("Error in communicating with server updating org");
 			}
 		} 
 		catch (Exception e) {
