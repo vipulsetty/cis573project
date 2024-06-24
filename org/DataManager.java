@@ -153,7 +153,6 @@ public class DataManager {
 			String status = (String)json.get("status");
 
 			if (status.equals("success")) {
-				System.out.println(json);
 				String name = (String)json.get("data");
         contributorCache.put(id, name);
 				return name;

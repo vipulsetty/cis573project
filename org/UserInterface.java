@@ -39,7 +39,7 @@ public class UserInterface {
 				System.out.println("Enter "+Integer.toString(numFunds+2)+" to quit.");
 				System.out.println("Enter -1 to list all contributions");
 				System.out.println("Enter -2 to change password");
-				System.out.println("Enter -3 to edict account info");
+				System.out.println("Enter -3 to edit account info");
 
 				String userString = in.nextLine();
 				try{
