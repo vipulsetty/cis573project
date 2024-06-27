@@ -303,10 +303,54 @@ app.use('/findFundNameById', (req, res) => {
     });
 
 
+
+
+/*
+NEW: create org through api
+*/
+app.use('/createOrg', (req, res) => {
+	//console.log("Hi.");
+	//console.log(req.query.name);
+	//console.log(req.query.login);
+	//console.log(req.query.password);
+	//console.log(req.query.description);
+	
+	const crypto = require('crypto');
+
+	function hashPassword(password) {
+		return crypto.createHash('sha256').update(password).digest('hex');
+	}
+	
+	var org = new Organization({
+		login: req.query.login,
+		password: hashPassword(req.query.password),
+		name: req.query.name,
+		description: req.query.description,
+		funds: []
+	    });
+
+	org.save( (err) => {
+		if (err) {
+		    //res.render("error", {'error' : err});
+			res.json({"status":"error",'data':err});
+		}
+		else {
+		    //console.log(org);
+		    /* res.render("viewOrg", { 'org': org , 'status': 'Successfully created new Organization'}); */
+			res.json({'status':'success'});
+		}
+	    });
+
+    });
+
+
+
+
 /*
 update org through api
 */
 app.use('/updateOrg', (req, res) => {
+	
 
 	const crypto = require('crypto');
 
@@ -334,7 +378,7 @@ app.use('/updateOrg', (req, res) => {
 
 /*
 Return information about all organizations, so that user can choose one to contribute to.
-Rather than return all info in database, this just returns the org's ID, name, and funds.
+Rather than return all info in database, this just returns the org's ID, name, and funds. EDIT: Also returning login.
 For each fund, it only includes the ID, name, target, and total donations so far.
 */
 app.use('/allOrgs', (req, res) => {
@@ -373,7 +417,8 @@ app.use('/allOrgs', (req, res) => {
 			    var orgResult = {
 				'_id' : org._id,
 				'name' : org.name,
-				'funds' : funds
+				'funds' : funds,
+				'login' : org.login
 			    };
 
 			    organizations.push(orgResult);
