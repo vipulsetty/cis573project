@@ -16,7 +16,11 @@ public class UserInterface {
 		this.cachedDonationTotals = new HashMap<>();
 	}
 
-	public void start(String password,String login) {
+	public void start(String password,String login){
+		start(password,login,false);
+	}
+
+	public void start(String password,String login, Boolean justCreatedNewOrganization) {
 		mainloop:
 		while (true) {
 			System.out.println("\n\n");
@@ -32,65 +36,89 @@ public class UserInterface {
 			}
     
 			while(true){
-				System.out.println("Please pick from one of the options by typing a number response: ");
-      			System.out.println("Enter 0 to create a new fund");
-				System.out.println("Enter the fund number to see more information.");
-				System.out.println("Enter "+Integer.toString(numFunds+1)+" to logout.");
-				System.out.println("Enter "+Integer.toString(numFunds+2)+" to quit.");
-				System.out.println("Enter -1 to list all contributions");
-				System.out.println("Enter -2 to change password");
-				System.out.println("Enter -3 to edit account info");
+				if (!justCreatedNewOrganization){
+					System.out.println("Please pick from one of the options by typing a number response: ");
+					System.out.println("Enter 0 to create a new fund");
+					System.out.println("Enter the fund number to see more information.");
+					System.out.println("Enter "+Integer.toString(numFunds+1)+" to logout.");
+					System.out.println("Enter "+Integer.toString(numFunds+2)+" to quit.");
+					System.out.println("Enter -1 to list all contributions");
+					System.out.println("Enter -2 to change password");
+					System.out.println("Enter -3 to edict account info");
+				
 
-				String userString = in.nextLine();
-				try{
-					int option = Integer.parseInt(userString);
-					if (option == 0) {
-						while(true){
-							try {
-								createFund();
-								continue mainloop;
-							} 
-							catch (Exception e) {
-								System.out.println(e.getMessage());
-								System.out.println("Type 'yes' to retry the operation, all other responses will cause the operation to end:");
-								String response = in.nextLine();
-									if(!response.equals("yes")){
-										continue mainloop;
-									}
+
+
+					String userString = in.nextLine();
+					try{
+						int option = Integer.parseInt(userString);
+						if (option == 0) {
+							while(true){
+								
+								try {
+									createFund();
+									continue mainloop;
+								} 
+								catch (Exception e) {
+									System.out.println(e.getMessage());
+									System.out.println("Type 'yes' to retry the operation, all other responses will cause the operation to end:");
+									String response = in.nextLine();
+										if(!response.equals("yes")){
+											continue mainloop;
+										}
+								}
 							}
 						}
+						else if (option>0 && option <= org.getFunds().size()){
+							
+							System.out.println("Type 'y' to display donations to fund " + option + " aggregated by contributor. All other input will be un-aggregated.");
+							String response = in.nextLine();
+							displayFund(option,response.toLowerCase().startsWith("y"));
+							continue mainloop;
+						}
+						else if (option == -1) {
+							listAllContributions();
+							continue mainloop;
+						}
+						else if (option == -2) {
+							changePassword(password,login);
+							continue mainloop;
+						}
+						else if (option == -3) {
+							editAccountInfo(password,login);
+							continue mainloop;
+						}
+						else if (option==numFunds+1) {
+							break;
+						}
+						else if (option==numFunds+2){
+							break mainloop;
+						}
+						else {
+							System.out.println("Invalid number option.");
+						}
 					}
-					else if (option>0 && option <= org.getFunds().size()){
-						
-						System.out.println("Type 'y' to display donations to fund " + option + " aggregated by contributor. All other input will be un-aggregated.");
-						String response = in.nextLine();
-						displayFund(option,response.toLowerCase().startsWith("y"));
-            			continue mainloop;
-          			}
-          			else if (option == -1) {
-				    	listAllContributions();
-						continue mainloop;
-          			}
-					else if (option == -2) {
-				    	changePassword(password,login);
-						continue mainloop;
-          			}
-					else if (option == -3) {
-				    	editAccountInfo(password,login);
-						continue mainloop;
-          			}
-					else if (option==numFunds+1) {
-						break;
-					}
-					else if (option==numFunds+2){
-						break mainloop;
-					}
-					else {
-						System.out.println("Invalid number option.");
+					catch (NumberFormatException e){
+						System.out.println("Please enter a number.");
 					}
 				}
-				catch (NumberFormatException e){
-					System.out.println("Please enter a number.");
+				else{ // just created a new organization, so jump to fund creation
+					while(true){
+						justCreatedNewOrganization = false;
+						System.out.println("Please create a fund for the new organization.");
+						try {
+							createFund();
+							continue mainloop;
+						} 
+						catch (Exception e) {
+							System.out.println(e.getMessage());
+							System.out.println("Type 'yes' to retry the operation, all other responses will cause the operation to end:");
+							String response = in.nextLine();
+								if(!response.equals("yes")){
+									continue mainloop;
+								}
+						}
+					}
 				}
 			}
 			while(true){
@@ -242,7 +270,7 @@ public class UserInterface {
 	}
 
 	public void displayFund(int fundNumber,boolean aggregated) {
-		System.out.println("aggregated: "+aggregated);
+		//System.out.println("aggregated: "+aggregated);
 		Fund fund = org.getFunds().get(fundNumber - 1);
 
 		System.out.println("\n\n");
@@ -349,16 +377,113 @@ public class UserInterface {
 
 	
 	
+	public static String[] createNewOrganization(DataManager ds){
+		String[] loginAndPassword = new String[2];
+		Scanner input = new Scanner(System.in);
+		String name;
+		String login;
+		String password;
+		String description;
+
+		while(true){ // get the name of the organization
+			System.out.println("Name of the new organization?");
+			name = input.nextLine().strip();
+			if (name.equals("")){
+				System.out.println("The name can't be empty.");
+			}
+			else
+				break;	
+
+		}
+		while(true){ // get the login
+			System.out.println("Login for the new organization?");
+			login = input.nextLine().strip();
+			if (login.equals("")){
+				System.out.println("The login can't be empty.");
+			}
+			else{
+				if (ds.isNewLogin(login)){
+					break;
+				}
+				else{
+					System.out.println("That login might be taken by an existing organization. Please try another.");
+				}
+
+			}
+				
+		}
+		while(true){ // get the password
+			System.out.println("Password for the new organization?");
+			password = input.nextLine().strip();
+			if (password.equals("")){
+				System.out.println("The password can't be empty.");
+			}
+			else
+				break;
+		}
+		while(true){ // get the description
+			System.out.println("Description of the new organization? (Just one line.)");
+			description = input.nextLine().strip();
+			if (description.equals("")){
+				System.out.println("The description can't be empty.");
+			}
+			else
+				break;
+		}
+
+		ds.createOrg(name,login,password,description);
+
+		loginAndPassword[0] = login;
+		loginAndPassword[1] = password;
+		
+		return loginAndPassword;
+	}
+
+
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		DataManager ds = new DataManager(new WebClient("localhost", 3001));
 
-		String login = args[0];
-		String password = args[1];
-		Organization org=null;
+		String login;
+		String password;
 		Scanner input = new Scanner(System.in);
+		Organization org=null;
+		Boolean justCreatedNewOrganization = false;
+
+
+		if (args.length >=2){
+			login = args[0];
+			password = args[1];
+		}
+		else{
+			String choice ;
+			while(true){
+				System.out.println("Create a new organization (N) or log in to an existing organization (L)?");
+				choice = input.nextLine();
+				if (choice !=""){
+					if (choice.toLowerCase().startsWith("n") || choice.toLowerCase().startsWith("l") )
+						break;
+				}
+			}
+			if (choice.toLowerCase().startsWith("l")){
+				System.out.println("Please enter a login:");
+				login = input.nextLine();
+				System.out.println("Please enter a password:");
+				password = input.nextLine();		
+			}
+			else{ //Creating a new organization. This must have a login different from any current organization.
+				String[] loginAndPassword = createNewOrganization(ds);
+				login = loginAndPassword[0];
+				password = loginAndPassword[1];
+				justCreatedNewOrganization=true;
+			}
+
+
+		}
+
 
 		while(true){
 			try{
@@ -388,7 +513,8 @@ public class UserInterface {
 			}
 		}
 		UserInterface ui = new UserInterface(ds, org);
-		ui.start(password,login);
+		ui.start(password,login,justCreatedNewOrganization);
+		input.close();
 		System.out.println("Good-bye!");
 	}
 }

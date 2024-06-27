@@ -153,6 +153,7 @@ public class DataManager {
 			String status = (String)json.get("status");
 
 			if (status.equals("success")) {
+				System.out.println(json);
 				String name = (String)json.get("data");
         contributorCache.put(id, name);
 				return name;
@@ -320,4 +321,105 @@ public class DataManager {
 			return false;
 		}
 	}
+
+	public Boolean isNewLogin(String login){
+		if (login == null){
+			throw new IllegalArgumentException();
+		}
+		if (login.equals("")){
+			//System.out.println("The login can't be blank.");
+			return false;
+		}
+		try{
+			Map<String, Object> map = new HashMap<>();
+			String response = client.makeRequest("/allOrgs",map);
+			if (response == null){
+				throw new IllegalStateException("Cannot connect to server or server response is null.");
+			}
+			JSONParser parser = new JSONParser();
+			JSONObject json=null;
+			try {
+				json = (JSONObject) parser.parse(response);
+			} catch (Exception e) {
+				throw new IllegalStateException("JSON Response not in correct format");
+			}
+			String status = (String)json.get("status");
+			if (status.equals("success")){
+				//System.out.println("---");
+				//System.out.println(json.get("data"));
+				//System.out.println("---");
+				List<Object> dataList = (List<Object>) json.get("data");
+				for (int i = 0; i<dataList.size(); i++){
+					JSONObject jo = (JSONObject)dataList.get(i);
+					String orgLogin = (String)jo.get("login");
+					//System.out.println(""+i+" "+orgLogin);
+					if (login.equals(orgLogin)){
+						return false;
+					}
+				}
+				return true;
+			}
+			else {
+				//System.out.println("Status: "+status);
+				throw new IllegalStateException("The server reports an error in checking whether the login is new.");
+			}
+		}
+		catch (Exception e){
+			System.out.println(e);
+			return false;
+		}
+
+		//return true;
+	}
+// returns whether it succeeded without an error or exception
+	public Boolean createOrg(String name, String login, String password, String description){
+		if (name == null || name.equals("")){
+			throw new IllegalArgumentException();
+		}
+		if (login == null || login.equals("")){
+			throw new IllegalArgumentException();
+		}
+		if (password == null || password.equals("")){
+			throw new IllegalArgumentException();
+		}
+		if (description == null){
+			throw new IllegalArgumentException();
+		}
+
+		try{
+			Map<String, Object> map = new HashMap<>();
+			map.put("name", name);
+			map.put("login", login);
+			map.put("password", password); // not hashed
+			map.put("description", description);
+			//System.out.println(map);
+			String response = client.makeRequest("/createOrg", map);
+			if (response==null){
+				throw new IllegalStateException("Cannot connect to server or server response is null");
+			}
+			JSONParser parser = new JSONParser();
+			JSONObject json=null;
+			try {
+				json = (JSONObject) parser.parse(response);
+			} catch (Exception e) {
+				throw new IllegalStateException("JSON Response not in correct format");
+			}
+			String status = (String)json.get("status");
+			if (status.toLowerCase().startsWith("success")) {
+				return true;
+			}
+			else {
+				System.out.println("Creation of organization failed: "+status);
+				throw new IllegalStateException("Error in communicating with server creating org");
+				//return false;
+			}
+
+			
+		}
+		catch (Exception e){
+			System.out.println(e);
+			return false;
+		}
+	}
+
 }
