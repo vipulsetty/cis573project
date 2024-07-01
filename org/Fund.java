@@ -40,7 +40,9 @@ public class Fund {
 	public List<Donation> getDonations() {
 		return donations;
 	}
-	
-	
+
+	public void addDonation(Donation donation) {
+		donations.add(donation);
+	}
 	
 }
