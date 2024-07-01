@@ -137,8 +137,13 @@ public class DataManager {
 
 			// Parse JSON response
 			JSONParser parser = new JSONParser();
-			JSONObject json = (JSONObject) parser.parse(response);
-			String status = (String) json.get("status");
+			JSONObject json=null;
+			try {
+				json = (JSONObject) parser.parse(response);
+			} catch (Exception e) {
+				throw new IllegalStateException("JSON Response for contributor name not in correct format");
+			}
+			String status = (String)json.get("status");
 
 			if ("success".equals(status)) {
 				String name = (String) json.get("data");
