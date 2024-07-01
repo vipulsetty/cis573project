@@ -4,6 +4,7 @@ public class Donation {
 	private String contributorName;
 	private long amount;
 	private String date;
+	private String fundName;
 	
 	public Donation(String fundId, String contributorName, long amount, String date) {
 		this.fundId = fundId;
@@ -26,6 +27,14 @@ public class Donation {
 
 	public String getDate() {
 		return date;
+	}
+
+	public String getFundName() {
+		return fundName;
+	}
+
+	public void setFundName(String string){
+		this.fundName=string;
 	}
 	
 	

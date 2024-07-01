@@ -37,16 +37,37 @@ public class UserInterface {
 
 			while (true) {
 				if (!justCreatedNewOrganization) {
+					System.out.println();
 					System.out.println("Please pick from one of the options by typing a number response: ");
 					System.out.println("Enter 0 to create a new fund");
 					System.out.println("Enter the fund number to see more information.");
-					System.out.println("Enter " + Integer.toString(numFunds + 1) + " to logout.");
-					System.out.println("Enter " + Integer.toString(numFunds + 2) + " to quit.");
-					System.out.println("Enter -1 to list all contributions");
-					System.out.println("Enter -2 to change password");
-					System.out.println("Enter -3 to edit account info");
+					System.out.println("Enter 'logout' to logout.");
+					System.out.println("Enter 'quit' to quit.");
+					System.out.println("Enter 'list all' to list all contributions");
+					System.out.println("Enter 'change password' to change password");
+					System.out.println("Enter 'edit' to edit account info");
+					System.out.println("All other inputs will bring you back to this menu");
 
 					String userString = in.nextLine();
+
+					if(userString.equals("logout")){
+						break;
+					}
+					else if(userString.equals("quit")){
+						break mainloop;
+					}
+					else if(userString.equals("list all")){
+						listAllContributions();
+						continue mainloop;
+					}
+					else if(userString.equals("change password")){
+						changePassword(password, login);
+						continue mainloop;
+					}
+					else if (userString.equals("edit")){
+						editAccountInfo(password, login);
+						continue mainloop;
+					}
 					try {
 						int option = Integer.parseInt(userString);
 						if (option == 0) {
@@ -68,24 +89,11 @@ public class UserInterface {
 							String response = in.nextLine();
 							displayFund(option, response.toLowerCase().startsWith("y"));
 							continue mainloop;
-						} else if (option == -1) {
-							listAllContributions();
-							continue mainloop;
-						} else if (option == -2) {
-							changePassword(password, login);
-							continue mainloop;
-						} else if (option == -3) {
-							editAccountInfo(password, login);
-							continue mainloop;
-						} else if (option == numFunds + 1) {
-							break;
-						} else if (option == numFunds + 2) {
-							break mainloop;
 						} else {
-							System.out.println("Invalid number option.");
+							System.out.println("Invalid option.");
 						}
 					} catch (NumberFormatException e) {
-						System.out.println("Please enter a number.");
+						System.out.println("Please enter a number or one of the other available options.");
 					}
 				} else { // just created a new organization, so jump to fund creation
 					while (true) {
@@ -380,7 +388,7 @@ public class UserInterface {
 		List<Donation> allDonations = dataManager.getAllContributions(org);
 		System.out.println("\n\nAll Contributions:");
 		for (Donation donation : allDonations) {
-			System.out.println("Fund: " + donation.getFundId() + ", Contributor: " + donation.getContributorName() + ", Amount: $" + donation.getAmount() + ", Date: " + formatDate(donation.getDate()));
+			System.out.println("Fund: " + donation.getFundName() + ", Contributor: " + donation.getContributorName() + ", Amount: $" + donation.getAmount() + ", Date: " + formatDate(donation.getDate()));
 		}
 	}
 
@@ -465,7 +473,7 @@ public class UserInterface {
 		Organization org = null;
 		Boolean justCreatedNewOrganization = false;
 
-		if (args.length >= 2) {
+		if (args.length == 2) {
 			login = args[0];
 			password = args[1];
 		} else {

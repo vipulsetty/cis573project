@@ -156,8 +156,6 @@ public class DataManager {
 			}
 		} catch (IllegalStateException | IllegalArgumentException e) {
 			throw e; // Rethrow known exceptions with original messages
-		} catch (ParseException e) {
-			throw new IllegalStateException("JSON Response for contributor name not in correct format", e);
 		} catch (Exception e) {
 			throw new IllegalStateException("Unknown error when getting contributor name: " + e.getMessage(), e);
 		}
@@ -237,6 +235,9 @@ public class DataManager {
 		List<Donation> allDonations = new ArrayList<>();
 
 		for (Fund fund : org.getFunds()) {
+			for (Donation donation : fund.getDonations()){
+				donation.setFundName(fund.getName());
+			}
 			allDonations.addAll(fund.getDonations());
 		}
 
@@ -248,6 +249,9 @@ public class DataManager {
 
 	public Boolean changeOrgPassword(Organization org, String newPassword, String login) {
 		try {
+			if(org==null||newPassword==null||login==null){
+				throw new IllegalArgumentException("Either organization, new password, or login is null");
+			}
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", org.getId());
 			map.put("login", login);
@@ -277,14 +281,17 @@ public class DataManager {
 		}
 	}
 
-	public Boolean updateAccountInfo(String name, String description, String id, String newPassword, String login) {
+	public Boolean updateAccountInfo(String name, String description, String id, String password, String login) {
 		try {
+			if(name==null||password==null||description==null||id==null||login==null){
+				throw new IllegalArgumentException("Either name, description, id, password, or login is null");
+			}
 			Map<String, Object> map = new HashMap<>();
 			map.put("id", id);
 			map.put("login", login);
-			map.put("password", newPassword);
+			map.put("password", password);
 			map.put("name", name);
-			map.put("description", login); // <-- Check if this is intended, might be a typo
+			map.put("description", description);
 			String response = client.makeRequest("/updateOrg", map);
 			if (response == null) {
 				throw new IllegalStateException("Cannot connect to server or server response is null");

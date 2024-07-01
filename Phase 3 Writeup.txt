@@ -1,36 +1,56 @@
 Phase 3 writeup
 
 
-
-
 1. Tasks to be graded: 
 3.1, 3.2, 3.3, and 3.4.
 
 
 2. A brief description of changes made:
 
-
-In task 3.1:
+3.1:
 DataManager.java: Made two methods isNewLogin() and createOrg(). These make calls to api.js and return true if we can proceed and false if something went wrong such as finding out that there is an existing organization with the same login name.
-
-
 UserInterface.java: Now checks if there are no command line arguments. If so, lets the user choose whether to create a new organization or to log in to an existing organization. To create a new organization, we need to ask the user for the name, login, password, and description, and check whether these are acceptable, including checking whether the login is already used. Added an optional parameter to the start() method (using an overload) to indicate whether an organization was just created so that one can go to creating a fund immediately, then rejoin the main loop.
-
-
-
 
 api.js: Created a new method “/createOrg” and modified “/allOrgs”.
 No method returned all login names which was necessary to check whether a potential login was distinct. The simplest change was to add the login names to the information returned by /allOrgs. 
 We created a method “/createOrg” based on the corresponding method in admin.js. The differences were using req.query instead of req.body and using res.json instead of res.render.
 
-
-
-
 Created two test classes to test the new DataManager classes, DataManager_isNewLogin_Test and DataManager_createOrg_Test.
+
+3.2:
+In 3.2 we provided the option for the user to change their org password. Within the UserInterface.start method the user could type change to change their password.
+This called the helper method UserInterface.changePassword which then called the helper method DataManager.changeOrgPassword.
+These methods together would handle input validation and send a request to the webserver.
+A new method called "/updateOrg" was created in api.js that was built off the "/updateOrg" in admin.js.
+This method allowed for orgs to be updatedd through a json input. The differences were using req.query instead of req.body and using res.json instead of res.render.
+
+A new test class called  DataManager_changeOrgPassword_Test was also added.
+
+3.3:
+In 3.2 we provided the option for the user to change their org information. Within the UserInterface.start() method the user could type edit to edit their account info except for the password.
+This called the helper method UserInterface.editAccountInfo which then called the helper method DataManager.updateAccountInfo
+These methods together would handle input validation and send a request to the webserver.
+A new method called "/updateOrg" was created in api.js that was built off the "/updateOrg" in admin.js.
+This method allowed for orgs to be updatedd through a json input. The differences were using req.query instead of req.body and using res.json instead of res.render.
+
+A new test class called  DataManager_updateAccountInfo_Test was also added.
+
+3.4:
+The primary goal of Task 3.4 was to enhance the Organization App by allowing organizations to make donations on behalf of contributors. In the UserInterface class, the makeDonation method was updated to include robust input validation for both the contributor ID and the donation amount. This ensures that only valid inputs are accepted, preventing errors and improving user experience. The method now prompts the user for their contributor ID and validates it against the database. If the ID is invalid or blank, the user is prompted to re-enter a valid ID. Once a valid contributor ID is obtained, the user is prompted to enter the donation amount, which must be a positive number. The input loop continues until a valid amount is provided. After successfully adding a donation through the dataManager.addDonation method, the local state of the Fund object is updated to include the new donation. This ensures that the latest donation is immediately reflected in the local application state. The updated list of donations for the fund is then displayed to the user, providing immediate feedback and confirmation of the successful transaction.A new addDonation method was added to the Fund class to facilitate updating the local list of donations. This method appends the new donation to the existing list, ensuring that the local state accurately reflects all contributions. A new test class, DataManager_addDonation_Test, was created to achieve 100% code coverage for the addDonation method in the DataManager class. This involved writing comprehensive tests to cover various scenarios: 
+
+Successful Donation Addition: A test to ensure that a donation is successfully added when valid inputs are provided.
+Null Web Client Handling: A test to verify that an IllegalStateException is thrown when the web client is null.
+Null Parameter Handling: A test to ensure that an IllegalArgumentException is thrown when any of the required parameters are null.
+Invalid JSON Response Handling: A test to verify that an IllegalStateException is thrown when the JSON response from the server is not in the correct format.
+Unknown Error Handling: A test to ensure that an IllegalStateException is thrown when an unknown error occurs during the donation addition process.
+
+Task 3.4 focused on enhancing the Organization App's functionality by enabling organizations to make donations on behalf of contributors. The improvements included robust input validation, updating the local state to reflect new donations immediately, and ensuring seamless integration with existing features. Comprehensive JUnit tests were implemented to achieve 100% code coverage for the addDonation method, ensuring reliability and stability of the new functionality. This task enhances the user experience by providing immediate feedback and confirmation of successful donations while maintaining the integrity of the application's local state.
 
 
 3. Bugs or issues:
-
+There were no additional bugs or issues.
+In phase 2 we lost points for not porperly displaying fund names when listing all contributions.
+We created a fix for this by modfiying the donatioon class to include the fundName as well so it could be displayed in the UI.
 
 
 
