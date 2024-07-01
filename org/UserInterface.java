@@ -105,6 +105,30 @@ public class UserInterface {
 					}
 				}
 			}
+			while(true){
+				System.out.println("Please log in to an org.");
+				System.out.println("Please enter a login:");
+				login = in.nextLine();
+				System.out.println("Please enter a password:");
+				password = in.nextLine();
+				try{
+					org = dataManager.attemptLogin(login, password);
+					if (org == null) {
+						System.out.println("Login failed.");
+					}
+					else{
+						break;
+					}
+				}
+				catch(Exception e){
+					System.out.println(e.getMessage());
+					System.out.println("Type 'yes' to retry the operation, all other responses will cause the operation to end and program to terminate:");
+					String response = in.nextLine();
+					if(!response.equals("yes")){
+						break mainloop;
+					}
+				}
+			}
 		}
 	}
 
