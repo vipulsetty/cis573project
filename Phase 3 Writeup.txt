@@ -1,0 +1,52 @@
+Phase 3 writeup
+
+
+
+
+1. Tasks to be graded: 
+3.1, 3.2, 3.3, and 3.4.
+
+
+2. A brief description of changes made:
+
+
+In task 3.1:
+DataManager.java: Made two methods isNewLogin() and createOrg(). These make calls to api.js and return true if we can proceed and false if something went wrong such as finding out that there is an existing organization with the same login name.
+
+
+UserInterface.java: Now checks if there are no command line arguments. If so, lets the user choose whether to create a new organization or to log in to an existing organization. To create a new organization, we need to ask the user for the name, login, password, and description, and check whether these are acceptable, including checking whether the login is already used. Added an optional parameter to the start() method (using an overload) to indicate whether an organization was just created so that one can go to creating a fund immediately, then rejoin the main loop.
+
+
+
+
+api.js: Created a new method “/createOrg” and modified “/allOrgs”.
+No method returned all login names which was necessary to check whether a potential login was distinct. The simplest change was to add the login names to the information returned by /allOrgs. 
+We created a method “/createOrg” based on the corresponding method in admin.js. The differences were using req.query instead of req.body and using res.json instead of res.render.
+
+
+
+
+Created two test classes to test the new DataManager classes, DataManager_isNewLogin_Test and DataManager_createOrg_Test.
+
+
+3. Bugs or issues:
+
+
+
+
+4. Instructions on how to start the app:
+ The organization app no longer requires the login and password to be command-line arguments. The old method still works, but if there are no command-line arguments then the program will prompt the user to log in or to create a new organization.
+
+
+
+
+5. Team member contributions:
+
+
+Matt worked on 3.1.
+
+
+Vipul worked on 3.2 and 3.3.
+
+
+Om worked on 3.4.
